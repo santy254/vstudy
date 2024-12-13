@@ -1,0 +1,233 @@
+/* General Styling */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f7f7f7;
+}
+
+/* Chat Page */
+.chat-page {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Chat Container */
+.chat-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.chat-header h2 {
+  font-size: 1.5em;
+  color: #333;
+  margin: 0;
+}
+
+.chat-header p {
+  color: #777;
+  font-size: 1em;
+}
+/* Chat Messages */
+.chat-messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  padding: 10px; /* Add padding for better spacing */
+}
+
+.message {
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 12px;
+  max-width: 75%;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9em;
+  word-wrap: break-word;
+}
+
+/* My Message - Sent */
+.my-message {
+  background-color: #474a4d;
+  color: #fff;
+  align-self: flex-end;
+  text-align: right; /* Align text to the right */
+  border-bottom-right-radius: 0; /* Make the corner distinct */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Other Message - Received */
+.other-message {
+  background-color: #e1f5fe;
+  color: #333;
+  align-self: flex-start;
+  text-align: left; /* Align text to the left */
+  border-bottom-left-radius: 0; /* Make the corner distinct */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.message-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8em;
+  color: #888;
+  margin-top: 5px;
+}
+
+.message-sender {
+  font-weight: bold;
+}
+
+.message-timestamp {
+  font-style: italic;
+  font-size: 0.75em;
+  text-align: right; /* Align timestamp for sent messages */
+}
+
+.message-content {
+  margin-top: 5px;
+  word-break: break-word; /* Ensure long words break properly */
+}
+
+
+/* Emoji Reactions */
+.emoji-reactions {
+  display: flex;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.emoji-reactions span {
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.emoji-reactions span:hover {
+  transform: scale(1.2);
+}
+
+/* Chat Input */
+.chat-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.chat-input textarea {
+  flex-grow: 1;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  resize: none;
+  font-size: 1em;
+}
+
+.chat-input button {
+  background-color: #0078d4;
+  border: none;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.chat-input button:hover {
+  background-color: #005a9c;
+}
+
+/* Emoji Picker Button */
+.emoji-button, .file-upload-button {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.3s;
+}
+
+.emoji-button:hover, .file-upload-button:hover {
+  color: #555;
+}
+
+/* Emoji Picker */
+.emoji-picker-react {
+  position: absolute;
+  bottom: 60px;
+  right: 10px;
+  z-index: 10;
+}
+
+/* File Message Styling */
+.file-message {
+  text-decoration: underline;
+  color: #005a9c;
+  cursor: pointer;
+  word-break: break-all;
+}
+
+/* Loading State */
+.chat-container p {
+  text-align: center;
+  font-size: 1.2em;
+  color: #888;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .chat-page {
+    flex-direction: column;
+  }
+
+  .group-list {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    box-shadow: none;
+    margin-bottom: 20px;
+  }
+
+  .chat-container {
+    padding: 10px;
+  }
+  .message {
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  .chat-header h2 {
+    font-size: 1.2em;
+  }
+
+  .chat-header p {
+    font-size: 0.9em;
+  }
+
+  .chat-input {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 5px;
+  }
+
+  .emoji-button, .file-upload-button {
+    font-size: 1.2em;
+  }
+ 
+}
+

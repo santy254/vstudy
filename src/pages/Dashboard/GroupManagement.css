@@ -1,0 +1,230 @@
+/* Main Content Box */
+.content-box {
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  max-width: 800px;
+  margin: auto;
+}
+
+/* Page Title */
+.page-title {
+  font-size: 1.8em;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Notification Box */
+.notification {
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  font-size: 0.95em;
+}
+
+.notification.success {
+  background-color: #e6ffed;
+  color: #2e7d32;
+}
+
+.notification.error {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/* Group Creation Form */
+.group-creation {
+  margin-bottom: 25px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.group-creation h3 {
+  font-size: 1.4em;
+  color: #444;
+  margin-bottom: 15px;
+}
+
+.group-input, .group-description-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1em;
+}
+
+.create-group-button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.create-group-button:hover {
+  background-color: #0056b3;
+}
+
+/* Group List */
+.group-list-container {
+  padding: 20px;
+  background-color: #f4f6f8;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.group-list-container h3 {
+  font-size: 1.4em;
+  color: #444;
+  margin-bottom: 15px;
+}
+
+.group-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 15px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.group-details {
+  max-width: 70%;
+}
+
+.group-name {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+}
+
+.group-name:hover {
+  color: #007bff;
+}
+
+.group-description {
+  color: #666;
+  margin-top: 5px;
+  font-size: 0.95em;
+}
+
+/* Admin Actions */
+.admin-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.invite-link-button,
+.delete-group-button {
+  padding: 8px 12px;
+  font-size: 0.9em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #fff;
+  transition: background-color 0.2s ease;
+}
+
+.invite-link-button {
+  background-color: #28a745;
+}
+
+.invite-link-button:hover {
+  background-color: #218838;
+}
+
+.delete-group-button {
+  background-color: #dc3545;
+}
+
+.delete-group-button:hover {
+  background-color: #c82333;
+}
+
+.group-members {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.group-members h3 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.member-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease;
+}
+
+.member-item:hover {
+  background-color: #f0f0f0;
+}
+
+.member-item span {
+  font-size: 16px;
+  color: #555;
+}
+
+.member-item span.admin {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.remove-member-button {
+  background-color: #ff5c5c;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.remove-member-button:hover {
+  background-color: #e04b4b;
+}
+
+.remove-member-button:focus {
+  outline: none;
+}
+
+.remove-member-button:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}

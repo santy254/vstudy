@@ -1,0 +1,165 @@
+/* General Styling */
+.project-report {
+  font-family: 'Arial', sans-serif;
+  margin: 20px auto;
+  padding: 20px;
+  max-width: 800px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #4caf50;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.report-header h1 {
+  font-size: 24px;
+  color: #4caf50;
+}
+
+.download-button {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.download-button:hover {
+  background-color: #45a049;
+}
+
+/* Content */
+.report-content {
+  padding: 10px;
+}
+
+.report-section {
+  margin-bottom: 20px;
+}
+
+.report-section h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #333;
+  border-left: 4px solid #4caf50;
+  padding-left: 8px;
+}
+
+.report-section p,
+.report-section ul {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #555;
+}
+
+.report-section ul {
+  list-style-type: disc;
+  margin-left: 20px;
+}
+
+/* Task Item Styling */
+.task-item {
+  background: #fff;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.task-item.completed {
+  border-color: #28a745;
+  background: #e9ffe9;
+}
+
+/* Video Session Styling */
+.video-session {
+  background: #fff;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.video-session .host {
+  font-weight: bold;
+  color: #333;
+}
+
+.video-session .status {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.video-session .status.active {
+  color: #4caf50;
+}
+
+.video-session .status.ended {
+  color: #f44336;
+}
+
+.video-session .actions button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  margin-right: 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.video-session .actions button:hover {
+  background-color: #45a049;
+}
+
+/* Participant List Styling */
+.participants {
+  margin: 10px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.participants span {
+  display: inline-block;
+  margin-right: 10px;
+  padding: 5px 10px;
+  background-color: #f1f1f1;
+  border-radius: 4px;
+}
+
+/* Loading State */
+.loading {
+  font-size: 18px;
+  text-align: center;
+  color: #4caf50;
+}
+
+/* Status Icon */
+.status-icon {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-icon.active {
+  background-color: #4caf50;
+}
+
+.status-icon.ended {
+  background-color: #f44336;
+}

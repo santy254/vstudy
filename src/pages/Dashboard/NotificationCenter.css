@@ -1,0 +1,31 @@
+/* src/pages/dashboard/NotificationCenter.css */
+.notification-center {
+    padding: 30px;
+    background: #f4f4f4;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .notification-center h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .notification-item {
+    padding: 15px;
+    background: #ffffff;
+    border-bottom: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    transition: background 0.3s ease;
+  }
+  
+  .notification-item.unread {
+    background: #f0f8ff;
+  }
+  
+  .notification-type {
+    font-weight: bold;
+    color: #007bff;
+  }
+  

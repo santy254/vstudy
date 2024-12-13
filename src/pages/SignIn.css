@@ -1,0 +1,111 @@
+/* SignIn.css */
+
+
+.signin-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(to right, #28334AFF, #F0F0C9FF);
+}
+
+.signin-form {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  text-align: center;
+}
+
+.signin-form h2 {
+  margin-bottom: 1rem;
+  font-size: 2rem;
+  color: #28334AFF;
+}
+
+.signin-form p {
+  color: #666;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+.signin-form label {
+  display: block;
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.signin-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.signin-form input:focus {
+  border-color: #28334AFF;
+  outline: none;
+}
+
+.btn-signin {
+  background-color: #28334AFF;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-signin:hover {
+  background-color: #ffcc00;
+}
+
+.btn-signin:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+.forgot-password-link,
+.get-started-link {
+  color: #943030;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.forgot-password-link:hover,
+.get-started-link:hover {
+  color: #ffcc00;
+}
+
+@media screen and (max-width: 768px) {
+  .signin-form {
+    padding: 30px;
+  }
+
+  .signin-form h2 {
+    font-size: 1.8rem;
+  }
+
+  .signin-form input {
+    font-size: 0.9rem;
+  }
+
+  .btn-signin {
+    font-size: 1rem;
+  }
+}

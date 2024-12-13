@@ -1,0 +1,94 @@
+/* src/pages/GetStarted.css */
+.getstarted-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(to right, #28334AFF, #F0F0C9FF);
+  }
+  
+  .getstarted-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 400px;
+  }
+  
+  .getstarted-form h2 {
+    margin-bottom: 1rem;
+    font-size: 2rem;
+    color: #28334AFF;
+  }
+  
+  
+  .getstarted-form p {
+  color: #666;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+  .getstarted-form input {
+    width: 100%;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .getstarted-form input:focus {
+    border-color: #28334AFF;
+  }
+  
+  .btn-getstarted {
+    background-color: #28334AFF;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  
+  .btn-getstarted:hover {
+    background-color: #ffcc00;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .getstarted-form {
+      width: 300px;
+      padding: 1.5rem;
+    }
+  
+    .getstarted-form h2 {
+      font-size: 1.8rem;
+    }
+  
+    .btn-getstarted {
+      padding: 0.75rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .getstarted-container {
+      padding: 1rem;
+    }
+  
+    .getstarted-form {
+      width: 90%;
+      padding: 1.5rem;
+    }
+  
+    .getstarted-form h2 {
+      font-size: 1.5rem;
+    }
+  
+    .btn-getstarted {
+      padding: 0.5rem;
+      font-size: 0.9rem;
+    }
+  }
+  
