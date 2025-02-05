@@ -21,17 +21,25 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || '*',
-    methods: ['GET', 'POST'],
+    origin: [
+      process.env.CLIENT_URL || "https://virtualstudygroup.netlify.app"
+  ],
+  methods: ["GET", "POST"],
+  credentials: true,
   },
 });
 
 // Middleware
 app.use(express.json());
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: [
+      process.env.CLIENT_URL || "https://virtualstudygroup.netlify.app",
+    ],
+    credentials: true,
+  })
+);
+
 app.use(express.urlencoded({ extended: true }));
 app.set('io', io);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
