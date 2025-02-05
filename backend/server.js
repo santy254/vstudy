@@ -21,22 +21,22 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: [
-      process.env.CLIENT_URL || "https://virtualstudygroup.netlify.app"
-  ],
-  methods: ["GET", "POST"],
-  credentials: true,
+    origin: "https://virtualstudygroup.netlify.app",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   },
 });
+
 
 // Middleware
 app.use(express.json());
 app.use(
   cors({
-    origin: [
-      process.env.CLIENT_URL || "https://virtualstudygroup.netlify.app",
-    ],
-    credentials: true,
+    origin: ["https://virtualstudygroup.netlify.app"], // Allow frontend domain
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,  // Allow cookies & authentication headers
   })
 );
 
