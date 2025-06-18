@@ -4,17 +4,18 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Update Profile Settings
-router.put('/profile', async (req, res) => {
-  try {
-    const { userId, fullName, email, profilePicture } = req.body;
+const { authenticateUser } = require('../middleware/authMiddleware'); // make sure it's imported
 
-    // Update user profile
-    const updatedUser = await User.findByIdAndUpdate(userId, {
-      fullName,
-      email,
-      profilePicture,
-    }, { new: true });
+router.put('/profile', authenticateUser, async (req, res) => {
+  try {
+    const userId = req.user.id; // Now this works
+    const { fullName, email, profilePicture } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { fullName, email, profilePicture },
+      { new: true }
+    );
 
     res.json({ message: 'Profile updated successfully!', user: updatedUser });
   } catch (error) {
@@ -22,6 +23,7 @@ router.put('/profile', async (req, res) => {
     res.status(500).json({ message: 'Failed to update profile' });
   }
 });
+
 
 // Update Privacy Settings
 router.put('/privacy', async (req, res) => {
@@ -79,22 +81,42 @@ router.put('/security', async (req, res) => {
     res.status(500).json({ message: 'Failed to update password' });
   }
 });
-
-// Update Application Settings
-router.put('/application', async (req, res) => {
+router.put('/application', authenticateUser, async (req, res) => {
   try {
-    const { userId, theme, language } = req.body;
+    const userId = req.user?.id;
 
-    // Update application settings
-    const updatedUser = await User.findByIdAndUpdate(userId, {
-      application: { theme, language }
-    }, { new: true });
+    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-    res.json({ message: 'Application settings updated successfully!', user: updatedUser });
+    const { theme, language } = req.body;
+
+    // ✅ Fetch the user and ensure application object exists
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // ✅ Ensure the application object exists
+    if (!user.application) {
+      user.application = {};
+    }
+
+    // ✅ Apply updates only if provided
+    if (theme !== undefined) user.application.theme = theme;
+    if (language !== undefined) user.application.language = language;
+
+    // ✅ Save the updated user document
+    await user.save();
+
+    res.json({
+      message: 'Application settings updated successfully!',
+      user
+    });
   } catch (error) {
     console.error('Error updating application settings:', error);
     res.status(500).json({ message: 'Failed to update application settings' });
   }
 });
+
+
+
+
 
 module.exports = router;

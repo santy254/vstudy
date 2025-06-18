@@ -5,9 +5,10 @@ import './Settings.css';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('profile');
-
+ const userId = '68516b4e9aa75d9a045fe918'; // <-- Temporary, later use from auth
   const handleSubmit = async (data) => {
     try {
+      const payload = { ...data, userId };
       switch (activeTab) {
         case 'profile':
           await api.put('/settings/profile', data);
@@ -55,21 +56,24 @@ const Settings = () => {
   );
 
   function renderContent() {
-    switch (activeTab) {
-      case 'profile':
-        return <ProfileSettings onSave={handleSubmit} />;
-      case 'privacy':
-        return <PrivacySettings onSave={handleSubmit} />;
-      case 'notifications':
-        return <NotificationSettings onSave={handleSubmit} />;
-      case 'security':
-        return <SecuritySettings onSave={handleSubmit} />;
-      case 'application':
-        return <ApplicationSettings onSave={handleSubmit} />;
-      default:
-        return <ProfileSettings onSave={handleSubmit} />;
-    }
+  const sharedProps = { onSave: handleSubmit };
+
+  switch (activeTab) {
+    case 'profile':
+      return <ProfileSettings {...sharedProps} />;
+    case 'privacy':
+      return <PrivacySettings {...sharedProps} />;
+    case 'notifications':
+      return <NotificationSettings {...sharedProps} />;
+    case 'security':
+      return <SecuritySettings {...sharedProps} />;
+    case 'application':
+      return <ApplicationSettings {...sharedProps} userId={userId} />;
+    default:
+      return <ProfileSettings {...sharedProps} />;
   }
+}
+
 };
 
 // Profile Settings Section
@@ -190,14 +194,23 @@ const SecuritySettings = ({ onSave }) => {
   );
 };
 
-// Application Settings Section
-const ApplicationSettings = ({ onSave }) => {
+const ApplicationSettings = ({ onSave, userId }) => {
   const [theme, setTheme] = useState('Light Mode');
   const [language, setLanguage] = useState('English');
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    onSave({ theme, language });
+
+    const data = { userId };
+    if (theme) data.theme = theme;
+    if (language) data.language = language;
+
+    if (Object.keys(data).length <= 1) {
+      alert('No application settings to update');
+      return;
+    }
+
+    onSave(data);
   };
 
   return (
@@ -221,5 +234,6 @@ const ApplicationSettings = ({ onSave }) => {
     </div>
   );
 };
+
 
 export default Settings;

@@ -223,3 +223,100 @@ body {
     font-size: 0.9rem;
   }
 }
+/* Welcome Panel */
+.welcome-panel {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 20px;
+  border-left: 6px solid #2980b9;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.welcome-panel .profile-pic {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 20px;
+}
+
+/* Course Overview Section */
+.course-overview {
+  background-color: #ffffff;
+  padding: 20px;
+  border-left: 6px solid #27ae60;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.course-overview h4 {
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.course-overview ul {
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+/* Events Panel Section */
+.events-panel {
+  background-color: #ffffff;
+  padding: 20px;
+  border-left: 6px solid #8e44ad;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.events-panel h4 {
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.events-panel ul {
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+/* To-Do Section */
+.todo-section {
+  background-color: #ffffff;
+  padding: 20px;
+  border-left: 6px solid #e67e22;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.todo-section h4 {
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.todo-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.todo-section li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  color: #2c3e50;
+}
+
+.todo-section button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 1rem;
+  color: #2980b9;
+  transition: color 0.3s;
+}
+
+.todo-section button:hover {
+  color: #1abc9c;
+}

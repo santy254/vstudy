@@ -20,7 +20,8 @@ const authenticateUser = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 
-    const userId = decoded.user.id;  // Assuming user.id is either ObjectId or string
+    const userId = decoded.id; // ✅ NOT decoded.user.id
+  // Assuming user.id is either ObjectId or string
     const user = await User.findById(userId);
 
     if (!user) {

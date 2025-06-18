@@ -19,11 +19,11 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide a password'],
     minlength: [6, 'Password must be at least 6 characters long'],
-    select: false, // Don't include password by default
+    select: false,
   },
   profilePicture: {
     type: String,
-    default: '', // Path to the profile picture
+    default: '',
   },
   role: {
     type: String,
@@ -33,43 +33,89 @@ const UserSchema = new mongoose.Schema({
   groups: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Group', // Reference to the Group model
+      ref: 'Group',
     }
   ],
   bio: {
     type: String,
-    default: '', // User bio
+    default: '',
   },
   location: {
     type: String,
-    default: '', // User location
+    default: '',
   },
 
+  // App Preferences
+  application: {
+    type: new mongoose.Schema({
+      theme: { type: String, default: 'light' },
+      language: { type: String, default: 'en' }
+    }, { _id: false }),
+    default: () => ({})
+  },
+
+  // 🎯 Embedded Tasks
+  tasks: [{
+    title: { type: String, required: true },
+    completed: { type: Boolean, default: false },
+    dueDate: { type: Date }
+  }],
+
+  // 🗓️ Embedded Events
+  events: [{
+    title: { type: String, required: true },
+    date: { type: Date, required: true },
+    reminderEnabled: { type: Boolean, default: false },
+    notes: { type: String, default: '' }
+  }],
+
+  // 📚 Embedded Courses
+  courses: [{
+    title: { type: String, required: true },
+    instructor: { type: String },
+    status: { type: String, enum: ['active', 'completed'], default: 'active' },
+    progress: { type: Number, default: 0 }
+  }],
+
+  // 🔊 Notification Settings
+  notificationSettings: {
+    voiceReminders: { type: Boolean, default: true },
+    sound: { type: String, default: 'default' }
+  },
+
+  // 🧩 Dashboard Layout Settings
+  dashboardSettings: {
+    showWelcomePanel: { type: Boolean, default: true },
+    compactMode: { type: Boolean, default: false }
+  },
+
+  // 🔐 Reset
   resetPasswordToken: String,
   resetPasswordExpire: Date,
+
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-// Hash password before saving
-UserSchema.pre('save', async function(next) {
+// 🔒 Password Hashing
+UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
-// Method to compare entered password with hashed password
-UserSchema.methods.correctPassword = async function(
+// 🔐 Password Verification
+UserSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
-// Generate reset password token
-UserSchema.methods.createPasswordResetToken = function() {
+// 🔑 Generate Reset Token
+UserSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
 
   this.resetPasswordToken = crypto
@@ -77,10 +123,9 @@ UserSchema.methods.createPasswordResetToken = function() {
     .update(resetToken)
     .digest('hex');
 
-  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // Token expires in 10 minutes
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };
 
 const User = mongoose.model('User', UserSchema);
-
 module.exports = User;

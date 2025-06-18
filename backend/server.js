@@ -21,7 +21,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://virtualstudygroup.netlify.app",
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -31,14 +31,13 @@ const io = new Server(server, {
 
 // Middleware
 app.use(express.json());
-app.use(
-  cors({
-    origin: ["https://virtualstudygroup.netlify.app"], // Allow frontend domain
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,  // Allow cookies & authentication headers
-  })
-);
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+];
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
 
 app.use(express.urlencoded({ extended: true }));
 app.set('io', io);
@@ -98,5 +97,5 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5002;
 server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
