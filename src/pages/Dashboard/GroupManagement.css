@@ -228,3 +228,38 @@
   background-color: #ddd;
   cursor: not-allowed;
 }
+
+.welcome-panel, .course-overview, .todo-section {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #f8f8f8;
+  border-radius: 8px;
+}
+
+.todo-section button {
+  margin-right: 8px;
+  cursor: pointer;
+}
+.group-dropdown {
+  margin: 20px 0;
+}
+
+.group-dropdown select {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 6px;
+}
+.register-button {
+  margin-left: 10px;
+  padding: 4px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.register-button:hover {
+  background-color: #0056b3;
+}

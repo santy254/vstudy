@@ -1,8 +1,79 @@
 .sidebar {
-  width: 200px;
-  background-color: #f0f0f0;
-  padding: 1rem;
+  width: 250px;
+  background-color: #1e293b;
+  color: #fff;
+  height: 100vh;
+  padding: 20px 10px;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', sans-serif;
+  transition: width 0.3s ease;
+  overflow: hidden;
 }
+
 .sidebar.collapsed {
-  width: 60px;
+  width: 70px;
+}
+
+.sidebar-toggle {
+  font-size: 24px;
+  background: none;
+  border: none;
+  color: white;
+  margin-bottom: 20px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.user-email {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 30px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #e2e8f0;
+  padding: 10px 12px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar a .icon {
+  margin-right: 12px;
+  font-size: 18px;
+  min-width: 20px;
+}
+
+.sidebar.collapsed a .icon {
+  margin-right: 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.sidebar.collapsed a span {
+  display: none;
+}
+
+.sidebar a:hover {
+  background-color: #334155;
+  color: #ffffff;
+}
+
+.sidebar a.active {
+  background-color: #475569;
+  font-weight: bold;
+  color: #ffffff;
 }

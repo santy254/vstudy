@@ -44,8 +44,8 @@ router.post('/register', async (req, res) => {
     const newUser = new User({ name, email, password });
     await newUser.save();
 
-    const payload = { user: { id: newUser._id } };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+   const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
 
     // Optionally, return the newly created user object without the password
     const userResponse = { id: newUser._id, name: newUser.name, email: newUser.email };
@@ -73,8 +73,8 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const payload = { user: { id: user._id } };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
 
     const userResponse = { id: user._id, name: user.name, email: user.email };
 

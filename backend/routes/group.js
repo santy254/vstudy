@@ -9,24 +9,21 @@ const { authenticateUser, authorizeAdmin } = require('../middleware/authMiddlewa
 // Create a Group
 
 router.post('/create', authenticateUser, async (req, res) => {
-  
   try {
-    if (!req.user || !req.user.id) {
+    if (!req.user || !req.user._id) {
       return res.status(400).json({ success: false, message: 'User is not defined' });
     }
 
     const { groupName, groupDescription } = req.body;
-    const userId = req.user.id;
+    const userId = req.user._id; // ✅ Correct MongoDB ObjectId
 
-    // Ensure the admin role is included for the creator
     const newGroup = await Group.create({
       groupName,
       groupDescription,
       createdBy: userId,
-      members: [{ userId, role: 'admin' }], // Ensure 'role' is explicitly set
+      members: [{ userId, role: 'admin' }],
     });
 
-    // Update the user's groups
     await User.findByIdAndUpdate(userId, {
       $push: { groups: newGroup._id },
     });
@@ -34,10 +31,11 @@ router.post('/create', authenticateUser, async (req, res) => {
     const responseGroup = { ...newGroup.toObject(), isCreatedByUser: true };
     res.status(201).json({ success: true, newGroup: responseGroup });
   } catch (error) {
-    console.error('Error creating group:', error); // Log the actual error
+    console.error('Error creating group:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
 
 
 // Fetch User's Groups with `isCreatedByUser` Field
