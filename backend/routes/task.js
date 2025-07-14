@@ -10,12 +10,25 @@ const router = express.Router();
 
 // Create a task
 router.post('/', authenticateUser, async (req, res) => {
-  const { taskName, description, dueDate, priority, groupId } = req.body;
+  const { taskName, description, dueDate, priority, groupId, assignedTo } = req.body;
   const createdBy = req.user.id;
 
-  if (!taskName || !groupId) {
-    return res.status(400).json({ message: 'Task name and group ID are required' });
+  if (!taskName || !dueDate || !priority || !groupId) {
+    return res.status(400).json({ message: 'Missing required fields.' });
   }
+
+  const newTask = await Task.create({
+    taskName,
+    description,
+    dueDate,
+    priority,
+    groupId,
+    assignedTo,
+    status: 'incomplete',
+    comments: []
+  });
+
+  res.status(201).json({ task: newTask });
 
   try {
     const group = await Group.findById(groupId);

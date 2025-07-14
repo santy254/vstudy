@@ -45,7 +45,7 @@ const TaskManager = () => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const groupRes = await axios.get('http://localhost:3000/group/user-groups', {
+       const groupRes = await axios.get('http://localhost:5002/api/group/user-groups',{
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -54,7 +54,7 @@ const TaskManager = () => {
         const groupData = groupRes.data.groups || groupRes.data;
         setGroups(groupData);
 
-        const userRes = await axios.get('http://localhost:3000/user', {
+        const userRes = await axios.get('http://localhost:3000/api/user', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -119,10 +119,12 @@ const TaskManager = () => {
         dueDate,
         priority,
         groupId: activeGroup,
-        assignedTo,
+        
       };
+        console.log("Creating task with payload:", taskData);
 
       const token = localStorage.getItem('token');
+      console.log("Using token:", token);
       let res;
 
       if (editTaskId) {
@@ -140,9 +142,10 @@ const TaskManager = () => {
       resetForm();
       setError('');
     } catch (err) {
-      console.error('Task save error:', err);
-      setError('Failed to save task.');
-    }
+  console.error('Task save error:', err.response?.data || err.message);
+  setError(err.response?.data?.message || 'Failed to save task.');
+}
+
   };
 
   const handleDelete = async (taskId) => {
@@ -245,13 +248,130 @@ const TaskManager = () => {
 
   if (!user) return <p>Loading user data...</p>;
 
-  return (
-    <div className="task-manager">
-      {/* The JSX rendering logic remains unchanged */}
-      {/* You already have full JSX logic for form, task list, comments, etc. */}
-      {/* Add your JSX from the previous code block */}
+ return (
+  <div className="task-manager">
+    <h2>Task Manager</h2>
+
+    {error && <p className="error">{error}</p>}
+
+    <div>
+      <label>Select Group:</label>
+      <select value={activeGroup} onChange={handleGroupChange}>
+        <option value="">-- Select --</option>
+        {groups.map((group) => (
+          <option key={group._id} value={group._id}>
+            {group.groupName}
+          </option>
+        ))}
+      </select>
     </div>
-  );
+
+    <form onSubmit={handleTaskSubmit}>
+      <input
+        type="text"
+        placeholder="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <textarea
+        placeholder="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <input
+        type="date"
+        value={dueDate}
+        onChange={(e) => setDueDate(e.target.value)}
+      />
+      <select value={priority} onChange={(e) => setPriority(e.target.value)}>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+      <select value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)}>
+        <option value="">Assign to...</option>
+        {users.map((u) => (
+          <option key={u._id} value={u._id}>
+            {u.name}
+          </option>
+        ))}
+      </select>
+      <button type="submit">{editTaskId ? 'Update Task' : 'Create Task'}</button>
+    </form>
+
+    <h3>Tasks</h3>
+    {loading ? (
+      <p>Loading tasks...</p>
+    ) : tasks.length === 0 ? (
+      <p>No tasks available.</p>
+    ) : (
+      <ul>
+        {tasks.map((task) => (
+          <li key={task._id}>
+            <strong>{task.taskName}</strong> - {task.priority} - Due: {task.dueDate?.slice(0, 10)}
+            <br />
+            {task.description}
+            <br />
+            Assigned to: {users.find((u) => u._id === task.assignedTo)?.name || 'Unassigned'}
+            <br />
+            Status: {task.status}
+            <br />
+            <button onClick={() => handleToggleCompletion(task._id)}>
+              {task.status === 'completed' ? 'Mark Incomplete' : 'Mark Completed'}
+            </button>
+            <button onClick={() => handleEdit(task)}>Edit</button>
+            <button onClick={() => handleDelete(task._id)}>Delete</button>
+
+            {/* Comments */}
+            <div>
+              <h4>Comments:</h4>
+              <ul>
+                {task.comments?.map((comment) => (
+                  <li key={comment._id}>
+                    {comment.comment} – {comment.author?.name}
+                    {comment.author?._id === user._id && (
+                      <button onClick={() => handleDeleteComment(task._id, comment._id)}>❌</button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <input
+                type="text"
+                value={comments[task._id] || ''}
+                onChange={(e) =>
+                  setComments((prev) => ({ ...prev, [task._id]: e.target.value }))
+                }
+              />
+              <button onClick={() => handleAddComment(task._id)}>Add Comment</button>
+            </div>
+
+            {/* Assign user */}
+            {isGroupAdmin && (
+              <div>
+                <select
+                  value={selectedTaskId === task._id ? selectedUserId : ''}
+                  onChange={(e) => {
+                    setSelectedTaskId(task._id);
+                    setSelectedUserId(e.target.value);
+                  }}
+                >
+                  <option value="">Assign user</option>
+                  {users.map((u) => (
+                    <option key={u._id} value={u._id}>
+                      {u.name}
+                    </option>
+                  ))}
+                </select>
+                <button onClick={() => handleAssignUser(task._id)}>Assign</button>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+);
+
 };
 
 export default TaskManager;

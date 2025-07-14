@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api';
 import './GroupManagement.css';
-
+  
 const GroupManagement = ({
   userCourses = [],
   tasks = [],
@@ -112,28 +112,36 @@ const handleCourseFormSubmit = async (e) => {
   e.preventDefault();
 
   try {
-    const token = localStorage.getItem('token');
-    if (!token) throw new Error('Not authenticated');
-
-    const response = await api.post('/courses/register', {
-      title: newCourseTitle,
-      instructor: newInstructor,
-    }, {
-      headers: { Authorization: `Bearer ${token}` },
+    const response = await fetch('http://localhost:5002/api/courses/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify({
+        title: newCourseTitle,
+        instructor: newInstructor,
+      }),
     });
 
-    setNotification({ message: 'Course registered successfully', type: 'success' });
+    const data = await response.json();
 
-    // Clear input fields
-    setNewCourseTitle('');
-    setNewInstructor('');
-
-    // Optionally, refresh course list
-    // You may add a fetchUserCourses() function
+    if (response.ok) {
+      console.log('Course registered:', data);
+      alert('Course submitted successfully!');
+      setNewCourseTitle('');
+      setNewInstructor('');
+    } else {
+      console.error('Submission error:', data.message);
+      alert('Submission failed: ' + data.message);
+    }
   } catch (err) {
-    setNotification({ message: 'Failed to register course', type: 'error' });
+    console.error('Network error:', err);
+    alert('Network error. See console.');
   }
 };
+
+
 
   const generateInvitationLink = async (groupId) => {
     try {

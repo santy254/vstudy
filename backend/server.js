@@ -16,7 +16,7 @@ const messageRoutes = require('./routes/message');
 const videosessionRoutes = require('./routes/videosession');
 const settingsRoutes = require('./routes/settings');
 
-
+const CourseRoutes = require('./routes/CourseRoutes'); // adjust path as needed
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -51,7 +51,7 @@ app.use('/api/message', messageRoutes);
 app.use('/api/videosession', videosessionRoutes);
 app.use('/api/settings', settingsRoutes);
 
-
+app.use('/api/courses', CourseRoutes);
 // Root route for testing
 app.get('/', (req, res) => {
   res.send('Welcome to the Virtual Study Group API!');
