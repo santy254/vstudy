@@ -16,25 +16,9 @@ router.post('/', authenticateUser, async (req, res) => {
   if (!taskName || !dueDate || !priority || !groupId) {
     return res.status(400).json({ message: 'Missing required fields.' });
   }
-
-  const newTask = await Task.create({
-    taskName,
-    description,
-    dueDate,
-    priority,
-    groupId,
-    assignedTo,
-    status: 'incomplete',
-    comments: []
-  });
-
-  res.status(201).json({ task: newTask });
-
   try {
     const group = await Group.findById(groupId);
     if (!group) return res.status(404).json({ message: 'Group not found' });
-
-    // Check if the user is an admin in the group
     const isAdmin = group.members.some(
       (member) => member.userId.toString() === req.user.id && member.role === 'admin'
     );
@@ -43,7 +27,6 @@ router.post('/', authenticateUser, async (req, res) => {
       return res.status(403).json({ message: 'Only admins can create tasks' });
     }
 
-    // Create a new task
     const newTask = new Task({
       taskName,
       description,
@@ -51,11 +34,13 @@ router.post('/', authenticateUser, async (req, res) => {
       priority,
       groupId,
       createdBy,
+      assignedTo,
+      status: 'incomplete',
+      comments: []
     });
 
     const savedTask = await newTask.save();
 
-    // Add the task to the group's task list
     group.tasks.push(savedTask._id);
     await group.save();
 
@@ -66,13 +51,15 @@ router.post('/', authenticateUser, async (req, res) => {
   }
 });
 
+
 // Get all tasks (for dashboard overview)
 router.get('/', authenticateUser, async (req, res) => {
   try {
     const userId = req.user.id; // Extract userId from the token
 
   
-    const tasks = await Task.find({ sender: userId }).populate('createdBy', 'name');
+   const tasks = await Task.find({ createdBy: userId }).populate('createdBy', 'name');
+
     
     res.status(200).json({ tasks });
   } catch (err) {

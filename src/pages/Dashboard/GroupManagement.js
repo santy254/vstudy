@@ -9,6 +9,7 @@ const GroupManagement = ({
   userName = 'Student',
   onGroupChange = () => {},
 }) => {
+const [courses, setCourses] = useState(userCourses); // local state for course list
 
   const [groups, setGroups] = useState([]);
   const [groupName, setGroupName] = useState('');
@@ -127,8 +128,17 @@ const handleCourseFormSubmit = async (e) => {
     const data = await response.json();
 
     if (response.ok) {
-      console.log('Course registered:', data);
       alert('Course submitted successfully!');
+
+      // ✅ Add the new course to local state
+      const newCourse = data.course || {
+        title: newCourseTitle,
+        instructor: newInstructor,
+      };
+
+      setCourses((prevCourses) => [...prevCourses, newCourse]);
+
+      // Clear input fields
       setNewCourseTitle('');
       setNewInstructor('');
     } else {
@@ -140,7 +150,6 @@ const handleCourseFormSubmit = async (e) => {
     alert('Network error. See console.');
   }
 };
-
 
 
   const generateInvitationLink = async (groupId) => {
@@ -188,17 +197,12 @@ const handleRegisterCourse = (course) => {
 <section className="course-overview">
   <h4>Your Courses</h4>
   <ul className="course-list">
-    {userCourses.map((course, index) => (
+   {courses.map((course, index) => (
+
       <li key={index} className="course-item">
-        <strong>{course.title}</strong><br />
+        <strong>{course.title}</strong>
         Instructor: {course.instructor}
-        <br />
-        <button
-          className="register-button"
-          onClick={() => handleRegisterCourse(course)}
-        >
-          Register
-        </button>
+        
       </li>
     ))}
   </ul>
@@ -223,18 +227,33 @@ const handleRegisterCourse = (course) => {
   </form>
 </section>
 
-
-
 <section className="todo-section">
-  <h4>Your Tasks</h4>
-  <ul>
-    {tasks.map((task, index) => (
-      <li key={index}>
-        <button onClick={() => readTask(task)}>🔊</button> {task}
-      </li>
-    ))}
-  </ul>
+  <h4>Your Tasks by Course</h4>
+  {courses.map((course, cIndex) => {
+    // Filter tasks that mention the course title
+    const courseTasks = tasks.filter(task =>
+      task.toLowerCase().includes(course.title.toLowerCase())
+    );
+
+    return (
+      <div key={cIndex} className="course-task-group">
+        <h5>{course.title}</h5>
+        {courseTasks.length > 0 ? (
+          <ul>
+            {courseTasks.map((task, index) => (
+              <li key={index}>
+                <button onClick={() => readTask(task)}>🔊</button> {task}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No tasks for this course.</p>
+        )}
+      </div>
+    );
+  })}
 </section>
+
 
       {notification.message && <div className={`notification ${notification.type}`}>{notification.message}</div>}
 

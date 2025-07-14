@@ -26,17 +26,18 @@ const TaskSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'in-progress', 'completed'],
+    enum: ['pending', 'in-progress', 'incomplete', 'completed'],
     default: 'pending',
   },
   dueDate: {
     type: Date,
-    validate: {
-      validator: function(value) {
-        return !value || value >= Date.now();
-      },
-      message: 'Due date cannot be in the past.',
+   validate: {
+    validator: function (value) {
+      // Allow due dates that are either not set or within 1 minute of the current time
+      return !value || value.getTime() >= Date.now() - 60000;
     },
+  message: 'Due date cannot be in the past.',
+},
   },
   priority: {
     type: String,
