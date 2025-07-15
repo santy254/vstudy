@@ -43,11 +43,16 @@ const Profile = () => {
           profile && (
             <div className="profile-container">
               <div className="profile-card">
-                <img
-                  src={profile.avatar || ' '}
-                  alt="Profile"
-                  className="profile-image"
-                />
+               <img
+  src={
+    profile.profilePicture
+      ? `${process.env.REACT_APP_API_URL || ''}${profile.profilePicture}`
+      : '/default-avatar.png'
+  }
+  alt="Profile"
+  className="profile-image"
+/>
+
                 <h2 className="profile-name">Welcome, {profile.name}</h2>
                 <p className="profile-email">Email: {profile.email}</p>
                 <p className="profile-role">Role: {profile.role}</p>
