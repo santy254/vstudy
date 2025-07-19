@@ -35,14 +35,22 @@ const transporter = nodemailer.createTransport({
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
 
+  console.log('🔍 Registration attempt:', { name, email, passwordLength: password?.length });
+
   try {
+    console.log('👤 Checking if user exists...');
     const existingUser = await User.findOne({ email });
+    console.log('👤 Existing user found:', !!existingUser);
+    
     if (existingUser) {
+      console.log('❌ User already exists:', email);
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    console.log('✅ Creating new user...');
     const newUser = new User({ name, email, password });
     await newUser.save();
+    console.log('✅ User saved successfully:', newUser._id);
 
    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
@@ -62,14 +70,23 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
+  console.log('🔍 Login attempt:', { email, passwordLength: password?.length });
+
   try {
     const user = await User.findOne({ email }).select('+password');
+    console.log('👤 User found:', !!user);
+    
     if (!user) {
+      console.log('❌ User not found for email:', email);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
+    console.log('🔐 Comparing passwords...');
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('🔐 Password match:', isMatch);
+    
     if (!isMatch) {
+      console.log('❌ Password mismatch for user:', email);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
@@ -82,6 +99,62 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error.message);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route GET /api/auth/test (simple test route)
+// @desc Test if auth routes are working
+router.get('/test', (req, res) => {
+  res.json({ message: 'Auth routes are working!', timestamp: new Date() });
+});
+
+// @route GET /api/auth/debug-users (for debugging)
+// @desc List all users in database (for debugging only)
+router.get('/debug-users', async (req, res) => {
+  try {
+    console.log('🔍 Debug users route called');
+    const users = await User.find({}).select('name email createdAt');
+    console.log('👥 Found users:', users.length);
+    res.json({ 
+      message: 'Users in database',
+      count: users.length,
+      users: users
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Error fetching users', error: error.message });
+  }
+});
+
+// @route GET /api/auth/create-test-user (for debugging)
+// @desc Create a test user for debugging
+router.get('/create-test-user', async (req, res) => {
+  try {
+    // Check if test user already exists
+    const existingUser = await User.findOne({ email: 'test@test.com' });
+    if (existingUser) {
+      return res.json({ message: 'Test user already exists', email: 'test@test.com', password: '123456' });
+    }
+
+    // Create test user
+    const testUser = new User({
+      name: 'Test User',
+      email: 'test@test.com',
+      password: '123456'
+    });
+
+    await testUser.save();
+    console.log('✅ Test user created successfully');
+
+    res.json({ 
+      message: 'Test user created successfully',
+      email: 'test@test.com',
+      password: '123456',
+      note: 'You can now login with these credentials'
+    });
+  } catch (error) {
+    console.error('Error creating test user:', error);
+    res.status(500).json({ message: 'Error creating test user', error: error.message });
   }
 });
 
@@ -177,10 +250,17 @@ router.put('/profile', authenticateUser, upload.single('avatar'), async (req, re
   // Handle profile update logic here
   try {
     const { name, email, location, bio } = req.body;
-    const userId = req.user.id;
+    const userId = req.user._id; // Fix: use _id instead of id
+
+    console.log('Updating profile for user:', userId);
+    console.log('Uploaded file:', req.file);
+    console.log('Request body:', req.body);
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
+
+    console.log('User found:', user.email);
+    console.log('Current profilePicture:', user.profilePicture);
 
     // Update user profile
     user.name = name || user.name;
@@ -189,10 +269,22 @@ router.put('/profile', authenticateUser, upload.single('avatar'), async (req, re
     user.bio = bio || user.bio;
 
     if (req.file) {
-      user.avatar = req.file.path;  // Store avatar path
+      // Store relative path for the profile picture
+      user.profilePicture = `/uploads/${req.file.filename}`;
+      console.log('Profile picture path set to:', user.profilePicture);
+      console.log('File details:', {
+        filename: req.file.filename,
+        originalname: req.file.originalname,
+        path: req.file.path
+      });
+    } else {
+      console.log('No file uploaded - req.file is null/undefined');
     }
 
     await user.save();
+    console.log('User profile updated successfully');
+    console.log('Final user profilePicture field:', user.profilePicture);
+    
     res.status(200).json(user);  // Send the updated user back
   } catch (error) {
     console.error('Error updating profile:', error);

@@ -1,0 +1,140 @@
+/* Light Theme (Default) */
+.light-theme {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-muted: #adb5bd;
+  --border-color: #dee2e6;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --accent-color: #007bff;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+}
+
+/* Dark Theme */
+.dark-theme {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #404040;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-muted: #808080;
+  --border-color: #404040;
+  --shadow: rgba(0, 0, 0, 0.3);
+  --accent-color: #4dabf7;
+  --success-color: #51cf66;
+  --warning-color: #ffd43b;
+  --danger-color: #ff6b6b;
+}
+
+/* Apply theme variables to common elements */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Settings page styling */
+.settings-container {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.settings-sidebar {
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+}
+
+.settings-sidebar ul li {
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.settings-sidebar ul li.active {
+  background-color: var(--bg-tertiary);
+  color: var(--accent-color);
+}
+
+.settings-sidebar ul li:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.settings-content {
+  background-color: var(--bg-primary);
+}
+
+.settings-section {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.settings-section h3 {
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.settings-section label {
+  color: var(--text-primary);
+}
+
+.settings-section input,
+.settings-section select,
+.settings-section textarea {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.settings-section input:focus,
+.settings-section select:focus,
+.settings-section textarea:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.settings-section button {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.settings-section button:hover {
+  background-color: var(--accent-color);
+  opacity: 0.9;
+}
+
+/* Task Manager styling */
+.task-manager {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.task-form-container {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.task-item {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+/* General form styling */
+input, select, textarea {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Cards and containers */
+.card, .container, .panel {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}

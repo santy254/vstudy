@@ -54,6 +54,45 @@ const UserSchema = new mongoose.Schema({
     default: () => ({})
   },
 
+  // Privacy Settings
+  privacy: {
+    type: new mongoose.Schema({
+      visibility: { type: String, enum: ['public', 'private', 'onlyFriends'], default: 'public' },
+      activityStatus: { type: String, enum: ['showWhenActive', 'hideMyActivity'], default: 'showWhenActive' },
+      dataSharing: { type: Boolean, default: false },
+      analyticsTracking: { type: Boolean, default: true },
+      locationSharing: { type: Boolean, default: false },
+      contactSync: { type: Boolean, default: false }
+    }, { _id: false }),
+    default: () => ({})
+  },
+
+  // Notification Settings
+  notifications: {
+    type: new mongoose.Schema({
+      emailNotifications: { type: String, enum: ['allNotifications', 'onlyMentions', 'onlyImportant', 'none'], default: 'allNotifications' },
+      inAppNotifications: { type: String, enum: ['allNotifications', 'onlyDirectMessages', 'onlyImportant', 'none'], default: 'allNotifications' },
+      pushNotifications: { type: Boolean, default: true },
+      taskReminders: { type: Boolean, default: true },
+      groupUpdates: { type: Boolean, default: true },
+      courseAnnouncements: { type: Boolean, default: true },
+      weeklyDigest: { type: Boolean, default: false },
+      soundEnabled: { type: Boolean, default: true }
+    }, { _id: false }),
+    default: () => ({})
+  },
+
+  // Security Settings
+  security: {
+    type: new mongoose.Schema({
+      twoFactorAuth: { type: Boolean, default: false },
+      loginAlerts: { type: Boolean, default: true },
+      sessionTimeout: { type: String, default: '30' },
+      deviceTrust: { type: Boolean, default: true }
+    }, { _id: false }),
+    default: () => ({})
+  },
+
   // 🎯 Embedded Tasks
   tasks: [{
     title: { type: String, required: true },

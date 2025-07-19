@@ -1,4 +1,3 @@
-// routes/taskRoute.js
 const express = require('express');
 const Task = require('../models/Task');
 const User = require('../models/User');
@@ -8,94 +7,239 @@ const { authenticateUser } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// Create a task
+// Create a task (group optional)
 router.post('/', authenticateUser, async (req, res) => {
-  const { taskName, description, dueDate, priority, groupId, assignedTo } = req.body;
-  const createdBy = req.user.id;
+  console.log('Received task data:', req.body);
+  console.log('User creating task:', req.user.email);
+  
+  const { taskName, description, dueDate, priority, groupId } = req.body;
+  const createdBy = req.user._id;
 
-  if (!taskName || !dueDate || !priority || !groupId) {
-    return res.status(400).json({ message: 'Missing required fields.' });
+  // Enhanced validation
+  if (!taskName || !taskName.trim()) {
+    return res.status(400).json({ 
+      message: 'Task name is required and cannot be empty.',
+      error: 'MISSING_TASK_NAME'
+    });
   }
-  try {
-    const group = await Group.findById(groupId);
-    if (!group) return res.status(404).json({ message: 'Group not found' });
-    const isAdmin = group.members.some(
-      (member) => member.userId.toString() === req.user.id && member.role === 'admin'
-    );
 
-    if (!isAdmin) {
-      return res.status(403).json({ message: 'Only admins can create tasks' });
+  if (!dueDate) {
+    return res.status(400).json({ 
+      message: 'Due date is required.',
+      error: 'MISSING_DUE_DATE'
+    });
+  }
+
+  if (!priority) {
+    return res.status(400).json({ 
+      message: 'Priority is required.',
+      error: 'MISSING_PRIORITY'
+    });
+  }
+
+  // Validate priority values
+  const validPriorities = ['low', 'medium', 'high'];
+  if (!validPriorities.includes(priority)) {
+    return res.status(400).json({ 
+      message: 'Priority must be one of: low, medium, high',
+      error: 'INVALID_PRIORITY'
+    });
+  }
+
+  // Validate due date
+  const dueDateObj = new Date(dueDate);
+  if (isNaN(dueDateObj.getTime())) {
+    return res.status(400).json({ 
+      message: 'Invalid due date format.',
+      error: 'INVALID_DATE'
+    });
+  }
+
+  // Allow due dates (removed past date restriction for now)
+  // You can add this back later if needed with proper timezone handling
+
+  try {
+    // Validate group if provided
+    if (groupId) {
+      if (!mongoose.Types.ObjectId.isValid(groupId)) {
+        return res.status(400).json({ 
+          message: 'Invalid group ID format.',
+          error: 'INVALID_GROUP_ID'
+        });
+      }
+
+      const group = await Group.findById(groupId);
+      if (!group) {
+        return res.status(404).json({ 
+          message: 'Group not found.',
+          error: 'GROUP_NOT_FOUND'
+        });
+      }
+
+      // Check if user is a member of the group
+      const isMember = group.members.some(
+        member => member.userId.toString() === req.user._id.toString()
+      );
+      
+      if (!isMember) {
+        return res.status(403).json({ 
+          message: 'You are not a member of this group.',
+          error: 'NOT_GROUP_MEMBER'
+        });
+      }
     }
 
-    const newTask = new Task({
-      taskName,
-      description,
-      dueDate,
+    const taskData = {
+      taskName: taskName.trim(),
+      description: description ? description.trim() : '',
+      dueDate: dueDateObj,
       priority,
-      groupId,
       createdBy,
-      assignedTo,
       status: 'incomplete',
       comments: []
-    });
+    };
 
-    const savedTask = await newTask.save();
-
-    group.tasks.push(savedTask._id);
-    await group.save();
-
-    res.status(201).json({ message: 'Task created successfully', task: savedTask });
-  } catch (err) {
-    console.error('Error creating task:', err.message);
-    res.status(500).json({ message: 'Error creating task', error: err.message });
-  }
-});
-
-
-// Get all tasks (for dashboard overview)
-router.get('/', authenticateUser, async (req, res) => {
-  try {
-    const userId = req.user.id; // Extract userId from the token
-
-  
-   const tasks = await Task.find({ createdBy: userId }).populate('createdBy', 'name');
-
-    
-    res.status(200).json({ tasks });
-  } catch (err) {
-    console.error('Error fetching all tasks:', err.message);
-    res.status(500).json({ message: 'Error fetching all tasks', error: err.message });
-  }
-});
-
-
-// Get tasks for a specific group
-router.get('/group/:groupId', authenticateUser, async (req, res) => {
-  const { groupId } = req.params;
-
-  try {
-    // Fetch the group by its ID
-    const group = await Group.findById(groupId);
-    if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+    // Add groupId only if provided
+    if (groupId) {
+      taskData.groupId = groupId;
     }
 
-    // Find if the current user is an admin in the group
-    const isAdmin = group.members.some(
-      (member) => member.userId.toString() === req.user.id && member.role === 'admin'
-    );
+    console.log('Creating task with data:', taskData);
+    console.log('Due date being saved:', taskData.dueDate);
+    console.log('Current time:', new Date());
 
-    // Fetch tasks for the group
-    const tasks = await Task.find({ groupId })
-    .populate('createdBy', 'name')
-    .populate('assignedTo', 'name email') // Populate assigned user details
-      .exec();
+    const newTask = new Task(taskData);
+    const savedTask = await newTask.save();
 
-    // Return the tasks and the admin status of the current user
-    res.status(200).json({ tasks, isAdmin: isAdmin });
+    // Populate the created task for response
+    const populatedTask = await Task.findById(savedTask._id)
+      .populate('createdBy', 'name email')
+      .populate('assignedTo', 'name email');
+
+    console.log('Task created successfully:', populatedTask);
+
+    res.status(201).json(populatedTask);
   } catch (err) {
-    console.error('Error fetching tasks:', err.message);
-    res.status(500).json({ message: 'Error fetching tasks', error: err.message });
+    console.error('Error creating task:', err);
+    
+    // Handle specific MongoDB errors
+    if (err.name === 'ValidationError') {
+      const validationErrors = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({ 
+        message: 'Validation failed',
+        error: 'VALIDATION_ERROR',
+        details: validationErrors
+      });
+    }
+
+    if (err.code === 11000) {
+      return res.status(400).json({ 
+        message: 'Duplicate task detected',
+        error: 'DUPLICATE_TASK'
+      });
+    }
+
+    res.status(500).json({ 
+      message: 'Internal server error while creating task',
+      error: 'SERVER_ERROR',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+});
+
+// Get all tasks
+router.get('/', authenticateUser, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const tasks = await Task.find({ createdBy: userId })
+      .populate('createdBy', 'name email')
+      .populate('assignedTo', 'name email')
+      .sort({ createdAt: -1 });
+
+    console.log(`Found ${tasks.length} tasks for user ${userId}`);
+    res.status(200).json(tasks);
+  } catch (err) {
+    console.error('Error fetching all tasks:', err);
+    res.status(500).json({ 
+      message: 'Error fetching tasks',
+      error: 'FETCH_ERROR',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+});
+
+// Toggle task completion status
+router.put('/toggle/:taskId', authenticateUser, async (req, res) => {
+  const { taskId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(taskId)) {
+    return res.status(400).json({
+      message: 'Invalid task ID format.',
+      error: 'INVALID_TASK_ID'
+    });
+  }
+
+  try {
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({
+        message: 'Task not found',
+        error: 'TASK_NOT_FOUND'
+      });
+    }
+
+    // Check if user owns the task or has permission to modify it
+    let hasPermission = false;
+    
+    if (task.createdBy.toString() === req.user._id.toString()) {
+      hasPermission = true;
+    } else if (task.groupId) {
+      // Check if user is admin of the group
+      const group = await Group.findById(task.groupId);
+      if (group) {
+        const userMember = group.members.find(
+          member => member.userId.toString() === req.user._id.toString()
+        );
+        hasPermission = userMember && userMember.role === 'admin';
+      }
+    }
+
+    if (!hasPermission) {
+      return res.status(403).json({
+        message: 'You do not have permission to update this task',
+        error: 'PERMISSION_DENIED'
+      });
+    }
+
+    // Toggle the task status
+    const newStatus = task.status === 'completed' ? 'incomplete' : 'completed';
+    task.status = newStatus;
+    task.updatedAt = new Date();
+
+    const updatedTask = await task.save();
+    
+    // Populate the updated task for response
+    const populatedTask = await Task.findById(updatedTask._id)
+      .populate('createdBy', 'name email')
+      .populate('assignedTo', 'name email');
+
+    console.log(`Task ${taskId} status toggled to: ${newStatus} by user ${req.user.email}`);
+    
+    // Log completion for analytics
+    if (newStatus === 'completed') {
+      console.log(`🎉 Task completed: "${task.taskName}" by ${req.user.email}`);
+    } else {
+      console.log(`🔄 Task marked incomplete: "${task.taskName}" by ${req.user.email}`);
+    }
+    
+    res.status(200).json(populatedTask);
+  } catch (err) {
+    console.error('Error toggling task status:', err);
+    res.status(500).json({
+      message: 'Error updating task status',
+      error: 'UPDATE_ERROR',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 });
 
@@ -104,31 +248,107 @@ router.put('/:taskId', authenticateUser, async (req, res) => {
   const { taskId } = req.params;
   const { taskName, description, dueDate, priority, status } = req.body;
 
+  if (!mongoose.Types.ObjectId.isValid(taskId)) {
+    return res.status(400).json({
+      message: 'Invalid task ID format.',
+      error: 'INVALID_TASK_ID'
+    });
+  }
+
   try {
     const task = await Task.findById(taskId);
-    if (!task) return res.status(404).json({ message: 'Task not found' });
-
-    const group = await Group.findById(task.groupId);
-    if (!group) return res.status(404).json({ message: 'Group not found' });
-
-    const isAdmin = group.members.some(member => member.userId.toString() === req.user.id && member.role === 'admin');
-
-    if (task.createdBy.toString() !== req.user.id && !isAdmin) {
-      return res.status(403).json({ message: 'You do not have permission to update this task' });
+    if (!task) {
+      return res.status(404).json({
+        message: 'Task not found',
+        error: 'TASK_NOT_FOUND'
+      });
     }
 
-    task.taskName = taskName || task.taskName;
-    task.description = description || task.description;
-    task.dueDate = dueDate || task.dueDate;
-    task.priority = priority || task.priority;
-    task.status = status || task.status;
-    task.updatedAt = Date.now();
+    // Check permissions
+    let hasPermission = false;
+    
+    if (task.createdBy.toString() === req.user._id.toString()) {
+      hasPermission = true;
+    } else if (task.groupId) {
+      const group = await Group.findById(task.groupId);
+      if (group) {
+        const userMember = group.members.find(
+          member => member.userId.toString() === req.user._id.toString()
+        );
+        hasPermission = userMember && userMember.role === 'admin';
+      }
+    }
+
+    if (!hasPermission) {
+      return res.status(403).json({
+        message: 'You do not have permission to update this task',
+        error: 'PERMISSION_DENIED'
+      });
+    }
+
+    // Update task fields if provided
+    if (taskName !== undefined) {
+      if (!taskName || !taskName.trim()) {
+        return res.status(400).json({
+          message: 'Task name cannot be empty',
+          error: 'INVALID_TASK_NAME'
+        });
+      }
+      task.taskName = taskName.trim();
+    }
+
+    if (description !== undefined) {
+      task.description = description ? description.trim() : '';
+    }
+
+    if (dueDate !== undefined) {
+      const dueDateObj = new Date(dueDate);
+      if (isNaN(dueDateObj.getTime())) {
+        return res.status(400).json({
+          message: 'Invalid due date format',
+          error: 'INVALID_DATE'
+        });
+      }
+      task.dueDate = dueDateObj;
+    }
+
+    if (priority !== undefined) {
+      const validPriorities = ['low', 'medium', 'high'];
+      if (!validPriorities.includes(priority)) {
+        return res.status(400).json({
+          message: 'Priority must be one of: low, medium, high',
+          error: 'INVALID_PRIORITY'
+        });
+      }
+      task.priority = priority;
+    }
+
+    if (status !== undefined) {
+      const validStatuses = ['incomplete', 'pending', 'completed'];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({
+          message: 'Status must be one of: incomplete, pending, completed',
+          error: 'INVALID_STATUS'
+        });
+      }
+      task.status = status;
+    }
+
+    task.updatedAt = new Date();
 
     const updatedTask = await task.save();
-    res.status(200).json({ message: 'Task updated successfully', task: updatedTask });
+    const populatedTask = await Task.findById(updatedTask._id)
+      .populate('createdBy', 'name email')
+      .populate('assignedTo', 'name email');
+
+    res.status(200).json(populatedTask);
   } catch (err) {
-    console.error('Error updating task:', err.message);
-    res.status(500).json({ message: 'Error updating task', error: err.message });
+    console.error('Error updating task:', err);
+    res.status(500).json({
+      message: 'Error updating task',
+      error: 'UPDATE_ERROR',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 });
 
@@ -136,173 +356,61 @@ router.put('/:taskId', authenticateUser, async (req, res) => {
 router.delete('/:taskId', authenticateUser, async (req, res) => {
   const { taskId } = req.params;
 
-  try {
-    const task = await Task.findById(taskId);
-    if (!task) return res.status(404).json({ message: 'Task not found' });
-
-    const group = await Group.findById(task.groupId);
-    if (!group) return res.status(404).json({ message: 'Group not found' });
-
-    const isAdmin = group.members.some(
-      (member) => member.userId.toString() === req.user.id && member.role === 'admin'
-    );
-
-    if (task.createdBy.toString() !== req.user.id && !isAdmin) {
-      return res.status(403).json({ message: 'You do not have permission to delete this task' });
-    }
-
-    await Task.findByIdAndDelete(taskId); // Using findByIdAndDelete for deletion
-    await User.updateMany(
-      { tasks: taskId },
-      { $pull: { tasks: taskId } }
-    );
-    res.status(200).json({ message: 'Task deleted successfully' });
-  } catch (err) {
-    console.error('Error deleting task:', err.message);
-    res.status(500).json({ message: 'Error deleting task', error: err.message });
-  }
-});
-
-
-// Toggle task completion
-router.put('/toggle/:taskId', authenticateUser, async (req, res) => {
-  const { taskId } = req.params;
-
-  try {
-    const task = await Task.findById(taskId);
-    if (!task) return res.status(404).json({ message: 'Task not found' });
-
-    const group = await Group.findById(task.groupId);
-    if (!group) return res.status(404).json({ message: 'Group not found' });
-
-    const isAdmin = group.members.some(member => member.userId.toString() === req.user.id && member.role === 'admin');
-
-    if (task.createdBy.toString() !== req.user.id && !isAdmin) {
-      return res.status(403).json({ message: 'You do not have permission to update this task' });
-    }
-
-    // Toggle task status between 'completed' and 'pending'
-    task.status = task.status === 'completed' ? 'pending' : 'completed';
-    task.updatedAt = Date.now();
-
-    const updatedTask = await task.save();
-    res.status(200).json({ message: 'Task status updated successfully', task: updatedTask });
-  } catch (err) {
-    console.error('Error updating task status:', err.message);
-    res.status(500).json({ message: 'Error updating task status', error: err.message });
-  }
-});
-
-router.post('/comment/:taskId', authenticateUser, async (req, res) => {
-  const { taskId } = req.params;
-  const { comment } = req.body;
-
-  if (!comment) {
-    return res.status(400).json({ message: 'Comment is required' });
-  }
-
-  try {
-    const task = await Task.findById(taskId).populate('comments.userId', 'name');
-
-    if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
-    }
-
-    const newComment = {
-      userId: req.user.id, // Ensure this is the authenticated user
-      comment,
-      createdAt: Date.now(),
-    };
-
-    task.comments.push(newComment);
-    await task.save();
-
-    // Populate user data before returning the comment
-    const populatedComment = await Task.findById(taskId)
-      .populate('comments.userId', 'name'); // Only populate the user's name
-    const commentWithUser = populatedComment.comments.pop(); // Get the last added comment
-
-    res.status(201).json({ comment: commentWithUser }); // Send the populated comment back
-  } catch (err) {
-    console.error('Error adding comment:', err.message);
-    res.status(500).json({ message: 'Error adding comment', error: err.message });
-  }
-});
-
-
-// Assuming the Task model has a comments array, each comment contains a userId field
-router.delete('/comment/:taskId/:commentId', authenticateUser, async (req, res) => {
-  const { taskId, commentId } = req.params;
-  
-  try {
-    // Find the task by ID
-    const task = await Task.findById(taskId);
-    if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
-    }
-
-    // Find the comment by ID within the task's comments
-    const comment = task.comments.id(commentId);
-    if (!comment) {
-      return res.status(404).json({ message: 'Comment not found' });
-    }
-
-    // Ensure that the user deleting the comment is the one who created it
-    if (comment.userId.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'You can only delete your own comments' });
-    }
-
-    // Remove the comment from the task
-    task.comments.pull(commentId);
-    await task.save();
-
-    res.status(200).json({ message: 'Comment deleted successfully' });
-  } catch (err) {
-    console.error('Error deleting comment:', err.message);
-    res.status(500).json({ message: 'Error deleting comment', error: err.message });
-  }
-});
-
-router.put('/assign/:taskId', authenticateUser, async (req, res) => {
-  const { taskId } = req.params;
-  const { userId } = req.body;
-
-  // Validate taskId
   if (!mongoose.Types.ObjectId.isValid(taskId)) {
-    return res.status(400).json({ message: 'Invalid task ID' });
-  }
-
-  // Validate userId
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).json({ message: 'Invalid user ID' });
+    return res.status(400).json({
+      message: 'Invalid task ID format.',
+      error: 'INVALID_TASK_ID'
+    });
   }
 
   try {
-    // Ensure the user exists
-    const userExists = await User.exists({ _id: userId });
-    if (!userExists) {
-      return res.status(400).json({ message: 'User does not exist' });
-    }
-
-    // Assign the user to the task
-    const task = await Task.findByIdAndUpdate(
-      taskId,
-      { $addToSet: { assignedTo: userId } }, // Prevent duplicate assignments
-      { new: true }
-    ).populate('assignedTo', 'name email');
-
-    // Check if the task exists
+    const task = await Task.findById(taskId);
     if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
+      return res.status(404).json({
+        message: 'Task not found',
+        error: 'TASK_NOT_FOUND'
+      });
     }
 
-    // Respond with success
-    res.status(200).json({ message: 'Task assigned successfully', task });
+    // Check permissions
+    let hasPermission = false;
+    
+    if (task.createdBy.toString() === req.user._id.toString()) {
+      hasPermission = true;
+    } else if (task.groupId) {
+      const group = await Group.findById(task.groupId);
+      if (group) {
+        const userMember = group.members.find(
+          member => member.userId.toString() === req.user._id.toString()
+        );
+        hasPermission = userMember && userMember.role === 'admin';
+      }
+    }
+
+    if (!hasPermission) {
+      return res.status(403).json({
+        message: 'You do not have permission to delete this task',
+        error: 'PERMISSION_DENIED'
+      });
+    }
+
+    await Task.findByIdAndDelete(taskId);
+
+    // Clean up references in users (if you have this relationship)
+    await User.updateMany({ tasks: taskId }, { $pull: { tasks: taskId } });
+
+    res.status(200).json({
+      message: 'Task deleted successfully',
+      taskId: taskId
+    });
   } catch (err) {
-    console.error('Error assigning user to task:', err.message);
-    res.status(500).json({ message: 'Error assigning user to task', error: err.message });
+    console.error('Error deleting task:', err);
+    res.status(500).json({
+      message: 'Error deleting task',
+      error: 'DELETE_ERROR',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 });
-
 
 module.exports = router;

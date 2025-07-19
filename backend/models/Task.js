@@ -2,11 +2,12 @@ const mongoose = require('mongoose');
 
 const TaskSchema = new mongoose.Schema({
   groupId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Group',
-    required: true,
-    index: true,
-  },
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Group',
+  required: false,  // ✅ make optional
+  index: true,
+},
+
   assignedTo: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -31,13 +32,7 @@ const TaskSchema = new mongoose.Schema({
   },
   dueDate: {
     type: Date,
-   validate: {
-    validator: function (value) {
-      // Allow due dates that are either not set or within 1 minute of the current time
-      return !value || value.getTime() >= Date.now() - 60000;
-    },
-  message: 'Due date cannot be in the past.',
-},
+    required: true,
   },
   priority: {
     type: String,

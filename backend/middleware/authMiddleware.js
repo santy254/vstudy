@@ -7,8 +7,14 @@ const User = require('../models/User');
 const authenticateUser = async (req, res, next) => {
  
   try {
-    const token = req.header('Authorization')?.split(' ')[1];
+    const authHeader = req.header('Authorization');
+    console.log('Auth header:', authHeader);
+    
+    const token = authHeader?.split(' ')[1];
+    console.log('Extracted token:', token ? 'Token present' : 'No token');
+    
     if (!token) {
+      console.log('No token found in request');
       return res.status(401).json({ success: false, message: 'Authorization token missing' });
     }
 
@@ -21,14 +27,19 @@ const authenticateUser = async (req, res, next) => {
     }
 
     const userId = decoded.id; // ✅ NOT decoded.user.id
-  // Assuming user.id is either ObjectId or string
+    console.log('Decoded user ID:', userId);
+    
+    // Assuming user.id is either ObjectId or string
     const user = await User.findById(userId);
+    console.log('Found user:', user ? `User found: ${user.email}` : 'No user found');
 
     if (!user) {
+      console.log('User not found in database');
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
     req.user = user;
+    console.log('Authentication successful for user:', user.email);
     next();
   } catch (error) {
     console.error('Authentication middleware error:', error);

@@ -100,8 +100,9 @@ router.get('/invite/:groupId', authenticateUser, async (req, res) => {
 
     if (!isAdmin) return res.status(403).json({ success: false, message: 'Only admins can generate invite links' });
 
-    // Generate invitation token
+    // Generate invitation token with expiration (24 hours from now)
     group.invitationToken = crypto.randomBytes(16).toString('hex');
+    group.invitationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
     await group.save();
 
     res.status(200).json({ success: true, invitationToken: group.invitationToken });
@@ -110,29 +111,108 @@ router.get('/invite/:groupId', authenticateUser, async (req, res) => {
   }
 });
 
+// Get Invitation Info (for preview before joining) - NO AUTH REQUIRED
+router.get('/invitation-info/:invitationToken', async (req, res) => {
+  try {
+    const { invitationToken } = req.params;
+    console.log('🔍 Getting invitation info for token:', invitationToken);
+    
+    // Add CORS headers for external access
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    
+    const group = await Group.findOne({ 
+      invitationToken,
+      $or: [
+        { invitationTokenExpiresAt: { $exists: false } }, // No expiration set (old tokens)
+        { invitationTokenExpiresAt: { $gt: new Date() } }  // Not expired
+      ]
+    })
+      .populate('createdBy', 'name email')
+      .select('groupName groupDescription createdAt members invitationTokenExpiresAt');
+
+    if (!group) {
+      console.log('❌ Group not found or token expired for token:', invitationToken);
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Invalid or expired invitation link. Please ask the group creator for a new link.' 
+      });
+    }
+
+    console.log('✅ Found group:', group.groupName);
+
+    // Return group info for preview (no sensitive data)
+    const groupInfo = {
+      groupName: group.groupName,
+      groupDescription: group.groupDescription,
+      createdAt: group.createdAt,
+      memberCount: group.members.length,
+      creatorName: group.createdBy?.name || 'Unknown',
+      invitationToken: invitationToken // Include token for verification
+    };
+
+    res.status(200).json({ 
+      success: true, 
+      group: groupInfo 
+    });
+  } catch (error) {
+    console.error('❌ Error getting invitation info:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error while fetching invitation info. Please try again later.' 
+    });
+  }
+});
+
 // Join Group
 router.post('/join/:invitationToken', authenticateUser, async (req, res) => {
   try {
-    const group = await Group.findOne({ invitationToken: req.params.invitationToken });
+    const { invitationToken } = req.params;
+    console.log('User attempting to join group with token:', invitationToken);
+    
+    const group = await Group.findOne({ invitationToken });
 
     if (!group) {
-      return res.status(404).json({ success: false, message: 'Invalid or expired invitation token' });
+      console.log('Group not found for token:', invitationToken);
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Invalid or expired invitation token' 
+      });
     }
+
+    console.log('Found group:', group.groupName, 'User:', req.user.email);
 
     const alreadyMember = group.members.some(
       (member) => member.userId.toString() === req.user._id.toString()
     );
 
     if (alreadyMember) {
-      return res.status(400).json({ success: false, message: 'Already a group member' });
+      console.log('User already a member');
+      return res.status(400).json({ 
+        success: false, 
+        message: 'You are already a member of this group' 
+      });
     }
 
     group.members.push({ userId: req.user._id, role: 'member' });
     await group.save();
 
-    res.status(200).json({ success: true, message: 'Joined the group successfully' });
+    console.log('User successfully joined group');
+    res.status(200).json({ 
+      success: true, 
+      message: 'Successfully joined the group!',
+      group: {
+        id: group._id,
+        name: group.groupName
+      }
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Error joining group:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error while joining group' 
+    });
   }
 });
 

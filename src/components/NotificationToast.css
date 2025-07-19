@@ -1,0 +1,158 @@
+.notification-toast-container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 350px;
+}
+
+.notification-toast {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border-left: 4px solid #007bff;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.notification-toast.task {
+  border-left-color: #28a745;
+}
+
+.notification-toast.group {
+  border-left-color: #17a2b8;
+}
+
+.notification-toast.message {
+  border-left-color: #ffc107;
+}
+
+.notification-toast.system {
+  border-left-color: #6c757d;
+}
+
+.notification-toast.reminder {
+  border-left-color: #fd7e14;
+}
+
+.toast-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-content h4 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.3;
+}
+
+.toast-content p {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.toast-time {
+  font-size: 11px;
+  color: #999;
+  font-weight: 500;
+}
+
+.toast-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #999;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.toast-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #666;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Dark theme support */
+[data-theme="dark"] .notification-toast {
+  background: #2d3748;
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .toast-content h4 {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .toast-content p {
+  color: #a0aec0;
+}
+
+[data-theme="dark"] .toast-time {
+  color: #718096;
+}
+
+[data-theme="dark"] .toast-close {
+  color: #a0aec0;
+}
+
+[data-theme="dark"] .toast-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .notification-toast-container {
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+  
+  .notification-toast {
+    padding: 12px;
+  }
+  
+  .toast-content h4 {
+    font-size: 13px;
+  }
+  
+  .toast-content p {
+    font-size: 12px;
+  }
+}
